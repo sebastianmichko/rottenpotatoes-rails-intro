@@ -11,13 +11,21 @@ class MoviesController < ApplicationController
   end
 
   def index
-      @movies = Movie.all
+      #@movies = Movie.all
+      
+      @all_ratings = ['G', 'PG', 'PG-13', 'R', 'NC-17']
+      #@all_ratings = Movie.possible_ratings()
+      
+      ratings = params[:ratings] != nil ? params[:ratings].keys : @all_ratings
+      
+      @movies = Movie.where(rating: ratings)
+      
       if params[:sort] == "title"
-        @movies = @movies.all.sort_by{|e| e[:title]}
+        @movies = @movies.sort_by{|e| e[:title]}
       end
       
       if params[:sort] == "release_date"
-        @movies = @movies.all.sort_by{|e| e[:release_date]}
+        @movies = @movies.sort_by{|e| e[:release_date]}
       end
   end
 
