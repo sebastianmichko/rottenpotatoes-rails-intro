@@ -11,22 +11,34 @@ class MoviesController < ApplicationController
   end
 
   def index
-      #@movies = Movie.all
+    #@movies = Movie.all
+    
+    if (params[:ratings] == nil && session[:ratings] != nil) || (params[:sort] == nil && session[:sort] != nil)
+      flash.keep
       
-      @all_ratings = ['G', 'PG', 'PG-13', 'R', 'NC-17']
-      #@all_ratings = Movie.possible_ratings()
-      
-      ratings = params[:ratings] != nil ? params[:ratings].keys : @all_ratings
-      
-      @movies = Movie.where(rating: ratings)
-      
-      if params[:sort] == "title"
-        @movies = @movies.sort_by{|e| e[:title]}
-      end
-      
-      if params[:sort] == "release_date"
-        @movies = @movies.sort_by{|e| e[:release_date]}
-      end
+      redirect_to movies_path(ratings: session[:ratings] || params[:ratings], sort: session[:sort] || params[:sort])
+    end
+
+    session[:sort] = params[:sort]
+    
+    session[:ratings] = params[:ratings]
+    
+    @all_ratings = ['G', 'PG', 'PG-13', 'R', 'NC-17']
+    #@all_ratings = Movie.possible_ratings()
+    
+    ratings = params[:ratings] != nil ? params[:ratings].keys : @all_ratings
+    
+    @movies = Movie.where(rating: ratings)
+    
+    if (params[:sort] == "title")
+      @movies = @movies.sort_by{|e| e[:title]}
+    end
+    
+    if (params[:sort] == "release_date")
+      @movies = @movies.sort_by{|e| e[:release_date]}
+    end
+    
+    @rating_checked = Hash[@all_ratings.map{|r| [r, ratings.include?(r)]}]
   end
 
   def new
